@@ -1,1 +1,59 @@
-import Link from "next/link";import {createClient} from "@/lib/supabase/server";import {redirect} from "next/navigation";import {logout} from "@/app/admin/login/actions";export default async function AdminHome(){const db=await createClient();const {data:{user}}=await db.auth.getUser();if(!user)redirect("/admin/login");const {data:admin}=await db.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();if(!admin)redirect("/admin/login?error=1");const {count}=await db.from("projects").select("id",{count:"exact",head:true});return <section className="admin-shell"><div className="admin-panel"><span className="eyebrow">Content management</span><h1>Portfolio dashboard</h1><p className="muted">Signed in as {user.email}. Manage the content that appears on your public portfolio.</p><div className="skill-groups"><div className="skill-group"><h3>Projects</h3><p className="muted">{count??0} database records</p><Link className="text-link" href="/admin/projects">Manage projects →</Link></div><div className="skill-group"><h3>Résumé</h3><p className="muted">The current PDF is served from the app's public files directory.</p><Link className="text-link" href="/files/mehdi-nourzadeh-resume.pdf" target="_blank">View résumé ↗</Link></div></div><form action={logout} style={{marginTop:25}}><button className="small-button" type="submit">Sign out</button></form></div></section>}
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+
+type EducationRow = {
+  id: string;
+  qualification: string;
+  institution: string;
+  field_of_study: string | null;
+};
+
+export default async function AdminEducation() {
+  const db = await createClient();
+  const {
+    data: { user },
+  } = await db.auth.getUser();
+
+  if (!user) redirect("/admin/login");
+
+  const { data: admin } = await db
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!admin) redirect("/admin/login?error=1");
+
+  const { data: rows } = await db
+    .from("education")
+    .select("*")
+    .order("sort_order");
+
+  const educationRows = (rows ?? []) as EducationRow[];
+
+  return (
+    <section className="admin-shell">
+      <div className="admin-panel">
+        <span className="eyebrow">CMS · Education</span>
+        <h1>Education</h1>
+        <p className="muted">
+          Education records are stored in PostgreSQL. Add and edit support is
+          the next CMS extension; update the initial seed/migration or database
+          records in Supabase for now.
+        </p>
+        <div className="admin-list">
+          {educationRows.map((r) => (
+            <div className="admin-row" key={r.id}>
+              <div>
+                <strong>{r.qualification}</strong>
+                <div className="muted">
+                  {r.institution} · {r.field_of_study || ""}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
