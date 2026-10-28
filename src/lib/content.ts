@@ -9,11 +9,11 @@ export type Project = {
   demo_url?: string | null;
   featured: boolean;
   status: "draft" | "published" | "archived";
-  problem?: string | null;
-  solution?: string | null;
-  architecture?: string | null;
-  challenges?: string | null;
-  outcomes?: string | null;
+  problem?: string;
+  solution?: string;
+  architecture?: string;
+  challenges?: string;
+  outcomes?: string;
 };
 
 type ProjectRecord = Project & {
@@ -187,7 +187,9 @@ export async function getProjects(): Promise<Project[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !key) return fallbackProjects;
+  if (!url || !key) {
+    return fallbackProjects;
+  }
 
   try {
     const { createClient } = await import("@supabase/supabase-js");
@@ -199,9 +201,13 @@ export async function getProjects(): Promise<Project[]> {
       .eq("status", "published")
       .order("sort_order");
 
-    if (error || !data) return fallbackProjects;
+    if (error) {
+      return fallbackProjects;
+    }
 
-    return (data as ProjectRecord[]).map((project) => ({
+    const projectRows = (data ?? []) as ProjectRecord[];
+
+    return projectRows.map((project) => ({
       ...project,
       technologies: project.technologies ?? [],
     }));
@@ -220,7 +226,9 @@ export async function getExperience() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !key) return fallbackExperience;
+  if (!url || !key) {
+    return fallbackExperience;
+  }
 
   try {
     const { createClient } = await import("@supabase/supabase-js");
@@ -248,7 +256,7 @@ export const fallbackProfile = {
   availability: "Open to software and backend opportunities",
   github_url: "https://github.com/MahdiNoorzadeh",
   linkedin_url: "",
-  website_url: "https://mahdinoorzadeh.github.io/",
+  website_url: "https://mehdi-portfolio-one.vercel.app/",
   resume_url: "/files/mahdi-nourzadeh-resume.pdf",
 };
 
@@ -256,7 +264,9 @@ export async function getProfile() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !key) return fallbackProfile;
+  if (!url || !key) {
+    return fallbackProfile;
+  }
 
   try {
     const { createClient } = await import("@supabase/supabase-js");
@@ -268,7 +278,9 @@ export async function getProfile() {
       .limit(1)
       .maybeSingle();
 
-    return error || !data ? fallbackProfile : { ...fallbackProfile, ...data };
+    return error || !data
+      ? fallbackProfile
+      : { ...fallbackProfile, ...data };
   } catch {
     return fallbackProfile;
   }
@@ -278,7 +290,9 @@ export async function getSkills() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !key) return skills;
+  if (!url || !key) {
+    return skills;
+  }
 
   try {
     const { createClient } = await import("@supabase/supabase-js");
@@ -289,13 +303,15 @@ export async function getSkills() {
       .select("name,category")
       .order("sort_order");
 
-    if (error || !data?.length) return skills;
+    if (error || !data?.length) {
+      return skills;
+    }
 
     const grouped = new Map<string, string[]>();
 
     for (const skill of data) {
       grouped.set(skill.category, [
-        ...(grouped.get(skill.category) || []),
+        ...(grouped.get(skill.category) ?? []),
         skill.name,
       ]);
     }
