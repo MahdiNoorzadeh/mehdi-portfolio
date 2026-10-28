@@ -1,0 +1,1 @@
+export function Footer(){return <footer className="footer"><div className="container footer-inner"><span>© {new Date().getFullYear()} Mehdi Nourzadeh</span><span>Built with Next.js, TypeScript & PostgreSQL</span><a href="https://github.com/MahdiNoorzadeh" target="_blank" rel="noreferrer">GitHub ↗</a></div></footer>}

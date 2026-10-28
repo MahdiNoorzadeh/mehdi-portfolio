@@ -1,0 +1,3 @@
+import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
+export function Header(){return <header className="site-header"><div className="container nav"><Link className="brand" href="/" aria-label="Mehdi Nourzadeh home">MN<span>.</span></Link><nav aria-label="Main navigation"><Link href="/projects">Projects</Link><Link href="/experience">Experience</Link><Link href="/about">About</Link><Link href="/contact">Contact</Link></nav><div className="nav-actions"><ThemeToggle/><Link className="button button-small" href="/files/mehdi-nourzadeh-resume.pdf" target="_blank">Download résumé ↗</Link></div></div></header>}
